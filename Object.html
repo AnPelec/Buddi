@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>My first three.js app</title>
+		<style>
+			#opas {
+			position: absolute;
+			top: 10px;
+			width: 100%;
+			text-align: center;
+			z-index: 100;
+			display:block;
+			color:red;
+			font-size:200;
+		}
+			body { margin: 0; }
+				canvas { width: 100%; height: 100%; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			// Our Javascript will go here.
+			
+			var camera, scene, renderer, geometry, material, mesh;
+
+			init();
+			animate();
+
+			/**
+			Create the scene, camera, renderer
+			*/
+			
+			function init() {
+			  scene = new THREE.Scene();
+			  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+			  camera.position.z = 500;
+			  scene.add(camera);
+			  addCurve();
+			  renderer = new THREE.WebGLRenderer();
+			  renderer.setSize(window.innerWidth, window.innerHeight);
+			  document.body.appendChild(renderer.domElement);
+			}
+
+			/**
+			 Add the initial bezier curve to the scene
+			*/
+			function addCurve() {
+				scale_up = 150;
+				testPoint = 0;
+				input_values = [1, -1, -1, -1, 1, 1, 1, -1, 1, 1, -1, -1, -1, -1, -1, 1, -1, 1, -1, 1, -1];
+				points = [];
+				for (i=0; i<input_values.length; i++) {
+				points.push(new THREE.Vector3(testPoint, input_values[i]*scale_up, 0));
+				testPoint += scale_up;
+				}
+				curve = new THREE.SplineCurve(points);
+				curveGeometry = new THREE.Geometry();
+				curveGeometry.vertices = curve.getPoints( 500 );
+
+				curveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+				curveLine = new THREE.Line( curveGeometry, curveMaterial );
+				scene.add(curveLine);
+			}
+
+			/**
+			 On each frame render, remove the old line, create new curve, geometry and add the new line
+			*/
+
+			function animate() {
+				if (camera.position.x <= input_values.length*scale_up)
+					camera.position.x += 1;
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			function render() {
+				renderer.render(scene, camera);
+			}
+
+		</script>
+		
+	
+	</body>
+	<footer>
+		<p id="opas">Your Daily Happiness Level</p>
+	</footer>
+</html>
