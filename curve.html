@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="C:/Users/Angelos/node_modules/paper/dist/docs/assets/js/paper.js"></script>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<script type="text/paperscript" canvas="myCanvas">
+	var width, height, center;
+	var points = 20;
+	var smooth = true;
+	var path = new Path();
+	var mousePos = view.center / 2;
+	
+	var newHeight=300, newWidth=1000;
+	var scaleX = newWidth/(points+1);
+	
+	view.viewSize = new Size(newWidth, newHeight);
+	var static_data = [2, 7, 2, 6, 2, 12, 2, 22, 2, 12, 2, 7, 2, 6, 2, 12, 2, 22, 2, 12];
+	
+	var pathHeight = mousePos.y;
+	path.fillColor = 'black';
+	initializePath();
+
+	function initializePath() {
+		center = view.center;
+		width = view.size.width;
+		height = view.size.height / 2;
+		path.segments = [];
+		path.add(view.bounds.bottomLeft);
+		for (var i = 0; i < points; i++) {
+			var point = new Point(scaleX*(i+1), 0);
+			path.add(point);
+		}
+		path.add(view.bounds.bottomRight);
+		path.fullySelected = true;
+	}
+
+	function onFrame(event) {
+		pathHeight += (center.y - mousePos.y - pathHeight) / 10;
+		for (var i = 0; i < points; i++) {
+			var sinSeed = event.count + (i + i % 10) * 100;
+			var sinHeight = Math.sin(sinSeed / 200) * pathHeight;
+			var yPos = Math.sin(sinSeed / 100) * sinHeight + height;
+			path.segments[i+1].point.y = static_data[i]*10;
+		}
+		if (smooth)
+			path.smooth({ type: 'continuous' });
+	}
+
+	function onMouseMove(event) {
+		mousePos = event.point;
+	}
+	
+	function onMouseDrag(event) {
+		var obas = new Size(event.delta.x, 0)
+		view.translate(obas,0);
+	}
+
+	// Reposition the path whenever the window is resized:
+	function onResize(event) {
+		initializePath();
+	}
+</script>
+</head>
+<body>
+	<canvas id="myCanvas" resize></canvas>
+</body>
+</html>
